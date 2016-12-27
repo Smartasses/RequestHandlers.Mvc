@@ -33,13 +33,14 @@ namespace RequestHandlers.Mvc.CSharp
             var compilation = CSharpCompilation.Create(_assemblyName)
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
                 .AddReferences(references);
-
+            var csharpControllers = new List<string>();
             foreach (var temp in definitions)
             {
                 var sb = new StringBuilder();
                 foreach (var line in CreateCSharp(GetClassName(temp.Definition.RequestType), temp))
                     sb.AppendLine(line);
                 var csharp = sb.ToString();
+                csharpControllers.Add(csharp);
                 compilation = compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText(csharp));
             }
 
@@ -52,7 +53,7 @@ namespace RequestHandlers.Mvc.CSharp
                 {
                     errormsg.AppendLine(diagnostic.ToString());
                 }
-                throw new Exception(errormsg.ToString());
+                throw new Exception(string.Join(Environment.NewLine, csharpControllers), new Exception(errormsg.ToString()));
             }
             assemblyStream.Seek(0, SeekOrigin.Begin);
             return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
@@ -84,7 +85,7 @@ namespace RequestHandlers.Mvc.CSharp
                 yield return "    {";
                 foreach (var source in requestBodyProperties)
                 {
-                    yield return $"        public {source.PropertyInfo.PropertyType.FullName} {source.PropertyInfo.Name} {{ get; set; }}";
+                    yield return $"        public {GetCorrectFormat(source.PropertyInfo.PropertyType)} {source.PropertyInfo.Name} {{ get; set; }}";
                 }
                 yield return "    }";
             }
@@ -92,7 +93,7 @@ namespace RequestHandlers.Mvc.CSharp
             var methodArgs = string.Join(",  ", builderDefinition.Parameters.GroupBy(x => x.PropertyName).Select(x => new
             {
                 Name = x.Key,
-                Type = x.First().BindingType == BindingType.FromBody || x.First().BindingType == BindingType.FromForm ? requestClass : x.First().PropertyInfo.PropertyType.FullName,
+                Type = x.First().BindingType == BindingType.FromBody || x.First().BindingType == BindingType.FromForm ? requestClass : GetCorrectFormat(x.First().PropertyInfo.PropertyType),
                 Binder = x.First().BindingType
             }).Select(x => $"[Microsoft.AspNetCore.Mvc.{x.Binder}Attribute] {x.Type} {x.Name}"));
 
@@ -105,7 +106,7 @@ namespace RequestHandlers.Mvc.CSharp
             yield return "            _requestDispatcher = requestDispatcher;";
             yield return "        }";
             yield return $"        [Microsoft.AspNetCore.Mvc.Http{builderDefinition.HttpMethod}Attribute(\"{builderDefinition.Route}\")]";
-            yield return $"        public {builderDefinition.Definition.ResponseType.FullName} Handle({methodArgs})";
+            yield return $"        public {GetCorrectFormat(builderDefinition.Definition.ResponseType)} Handle({methodArgs})";
             yield return "        {";
             var requestVariable = "request_" + Guid.NewGuid().ToString().Replace("-", "");
             yield return $"            var {requestVariable} = new {builderDefinition.Definition.RequestType.FullName}";
@@ -121,8 +122,19 @@ namespace RequestHandlers.Mvc.CSharp
             yield return "        }";
             yield return "    }";
             yield return "}";
+        }
 
+        private string GetCorrectFormat(Type type)
+        {
+            if (type.IsArray)
+            {
+                return GetCorrectFormat(type.GetElementType()) + "[]";
+            }
 
+            if (type.IsConstructedGenericType)
+                return string.Format("{0}<{1}>", type.FullName.Split('`')[0], string.Join(", ", type.GetGenericArguments().Select(GetCorrectFormat)));
+            else
+                return type.FullName;
         }
     }
 }

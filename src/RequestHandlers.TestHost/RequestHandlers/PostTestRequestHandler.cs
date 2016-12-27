@@ -1,4 +1,5 @@
-﻿using RequestHandlers.Http;
+﻿using System.Collections.Generic;
+using RequestHandlers.Http;
 
 namespace RequestHandlers.TestHost.RequestHandlers
 {
@@ -12,6 +13,7 @@ namespace RequestHandlers.TestHost.RequestHandlers
         public string ThisShouldBeQueryString { get; set; }
         public string ThisShouldBeBody { get; set; }
         public string ThisShouldBeAsWell { get; set; }
+        public Dictionary<string, string> TestGenericType { get; set; }
     }
     public class PostTestResponse
     {
