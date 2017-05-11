@@ -1,4 +1,5 @@
-﻿using RequestHandlers.Http;
+﻿using System.Threading.Tasks;
+using RequestHandlers.Http;
 
 namespace RequestHandlers.TestHost.RequestHandlers
 {
@@ -16,10 +17,11 @@ namespace RequestHandlers.TestHost.RequestHandlers
         public string Test { get; set; }
         public string Test2 { get; set; }
     }
-    public class GetTestRequestHandler : IRequestHandler<GetTestRequest, GetTestResponse>
+    public class GetTestRequestHandler : IAsyncRequestHandler<GetTestRequest, GetTestResponse>
     {
-        public GetTestResponse Handle(GetTestRequest request)
+        public async Task<GetTestResponse> Handle(GetTestRequest request)
         {
+            await Task.Delay(30);
             return new GetTestResponse
             {
                 Param1 = request.Param1,

@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26114.2
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RequestHandlers.Mvc", "RequestHandlers.Mvc\RequestHandlers.Mvc.xproj", "{76F9ED4E-54FD-4CC8-8E3D-4EF12EED4088}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestHandlers.Mvc", "RequestHandlers.Mvc\RequestHandlers.Mvc.csproj", "{76F9ED4E-54FD-4CC8-8E3D-4EF12EED4088}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RequestHandlers.TestHost", "RequestHandlers.TestHost\RequestHandlers.TestHost.xproj", "{7C409F1B-6216-49E3-BF8C-CDFBA491C5F9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestHandlers.TestHost", "RequestHandlers.TestHost\RequestHandlers.TestHost.csproj", "{7C409F1B-6216-49E3-BF8C-CDFBA491C5F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

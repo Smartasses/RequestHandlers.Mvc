@@ -31,7 +31,7 @@ namespace RequestHandlers.TestHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IRequestProcessor, DefaultRequestProcessor>();
+            services.AddTransient<IWebRequestProcessor, DefaultWebRequestProcessor>();
             services.AddTransient<IRequestDispatcher, DefaultRequestDispacher>();
             services.AddTransient<IRequestHandlerResolver>(x => new RequestHandlerResolver(x));
             var requestHandlerInterface = typeof(IRequestHandler<,>);
