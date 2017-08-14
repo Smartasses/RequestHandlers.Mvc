@@ -1,4 +1,4 @@
-# RequestHandlers.Mvc
+# RequestHandlers.Mvc [![NuGet](https://img.shields.io/nuget/v/RequestHandlers.Mvc.svg)](https://www.nuget.org/packages/RequestHandlers.Mvc/)
 RequestHandlers is a framework that helps you structure your code into small, easy-to-test units of work.
 
 When you are writing an MVC-application, your controllers sometimes get cluttered with too much actions and code. If you use the classes and conventions given to you by RequestHandlers, your code will be more testable and comprehensable.
