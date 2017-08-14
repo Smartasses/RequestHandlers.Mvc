@@ -31,21 +31,10 @@ namespace RequestHandlers.TestHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IWebRequestProcessor, DefaultWebRequestProcessor>();
-            services.AddTransient<IRequestDispatcher, DefaultRequestDispacher>();
-            services.AddTransient<IRequestHandlerResolver>(x => new RequestHandlerResolver(x));
-            var requestHandlerInterface = typeof(IRequestHandler<,>);
-            foreach (var requestHandler in RequestHandlerFinder.InAssembly(this.GetType().GetTypeInfo().Assembly))
-            {
-                services.Add(new ServiceDescriptor(requestHandlerInterface.MakeGenericType(requestHandler.RequestType, requestHandler.ResponseType), requestHandler.RequestHandlerType, ServiceLifetime.Transient));
-            }
-            // Add framework services.
-            
-            var mvc = services.AddMvc();
-            mvc.AddApplicationPart(RequestHandlerControllerBuilder.Build(RequestHandlerFinder.InAssembly(GetType().GetTypeInfo().Assembly)));
-
-            // Inject an implementation of ISwaggerProvider with defaulted settings applied
-            services.AddSwaggerGen();
+            services
+                .AddRequestHandlers(this.GetType().GetTypeInfo().Assembly)
+                // Inject an implementation of ISwaggerProvider with defaulted settings applied
+                .AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,6 +43,7 @@ namespace RequestHandlers.TestHost
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            // RequestHandlers.Mvc relies on Mvc to be present.
             app.UseMvc();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint
@@ -61,22 +51,6 @@ namespace RequestHandlers.TestHost
 
             // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
             app.UseSwaggerUi();
-        }
-    }
-
-    class RequestHandlerResolver : IRequestHandlerResolver
-    {
-        private readonly IServiceProvider _provider;
-
-        public RequestHandlerResolver(IServiceProvider provider)
-        {
-            _provider = provider;
-        }
-
-        public IRequestHandler<TRequest, TResponse> Resolve<TRequest, TResponse>()
-        {
-            var result = (IRequestHandler<TRequest, TResponse>)_provider.GetService(typeof(IRequestHandler<TRequest, TResponse>));
-            return result;
         }
     }
 }
