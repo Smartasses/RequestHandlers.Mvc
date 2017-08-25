@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,13 +19,15 @@ namespace RequestHandlers.Mvc.CSharp
     {
         private readonly HashSet<string> _classNames;
         private readonly string _assemblyName;
+        private readonly AttributeGenerator _attributeGenerator;
 
         public CSharpBuilder(string assemblyName)
         {
             _classNames = new HashSet<string>();
             _assemblyName = assemblyName;
+            _attributeGenerator = new AttributeGenerator();
         }
-        
+
         public Assembly Build(HttpRequestHandlerDefinition[] definitions)
         {
             var references = new AssemblyReferencesHelper()
@@ -47,7 +51,7 @@ namespace RequestHandlers.Mvc.CSharp
             _requestProcessor = requestProcessor;
         }}
 
-    {CodeStr.Foreach(operationResults.SelectMany(x => x.Operation.Split(new [] {Environment.NewLine}, StringSplitOptions.None)), operation => $@"
+    {CodeStr.Foreach(operationResults.SelectMany(x => x.Operation.Split(new[] { Environment.NewLine }, StringSplitOptions.None)), operation => $@"
         {operation}")}
     }}
 }}");
@@ -110,7 +114,7 @@ namespace RequestHandlers.Mvc.CSharp
 {{{CodeStr.Foreach(requestBodyProperties, source => $@"
     public {GetCorrectFormat(source.PropertyInfo.PropertyType)} {source.PropertyInfo.Name} {{ get; set; }}")}
 }}";
-            operationResult.Operation = $@"[Microsoft.AspNetCore.Mvc.Http{builderDefinition.HttpMethod}Attribute(""{builderDefinition.Route}""), {GetCorrectFormat(typeof(ProducesAttribute))}(typeof({GetCorrectFormat(responseType)}))]
+            operationResult.Operation = $@"{GetAttributes(builderDefinition.Definition)}[Microsoft.AspNetCore.Mvc.Http{builderDefinition.HttpMethod}Attribute(""{builderDefinition.Route}""), {GetCorrectFormat(typeof(ProducesAttribute))}(typeof({GetCorrectFormat(responseType)}))]
 public  {(isAsync ? "async " : string.Empty)}{GetCorrectFormat(isAsync ? typeof(Task<IActionResult>) : typeof(IActionResult))} {operationName}({methodArgs})
 {{
     var {requestVariable} = new {GetCorrectFormat(builderDefinition.Definition.RequestType)}
@@ -123,6 +127,22 @@ public  {(isAsync ? "async " : string.Empty)}{GetCorrectFormat(isAsync ? typeof(
 }}";
             return operationResult;
         }
+
+        private string GetAttributes(IRequestDefinition requestDefinition)
+        {
+            return requestDefinition is RequestHandlerDefinition requestHandlerDefinition
+                ? GetAttributes(requestHandlerDefinition)
+                : string.Empty;
+        }
+
+        private string GetAttributes(RequestHandlerDefinition requestHandlerDefinition)
+        {
+            var attributes = requestHandlerDefinition.RequestHandlerType.GetTypeInfo()
+                .CustomAttributes
+                .Select(x => _attributeGenerator.Generate(x)).Append(string.Empty);
+            return string.Join(Environment.NewLine, attributes);
+        }
+
         private string GetCorrectFormat(Type type)
         {
             if (type.IsArray)

@@ -57,7 +57,7 @@ public class MyFirstRequestHandler : IRequestHandler<MyFirstRequest, MyFirstResp
     }
 }
  ```
- Add this point, you should be able to run the application and request the configured url. By default in an ASP.NET Core application this should be _http://localhost:5000/api/my-first-request-handler_.  
+ At this point, you should be able to run the application and request the configured url. By default in an ASP.NET Core application this should be _http://localhost:5000/api/my-first-request-handler_.  
 
 ### Adding url-variables and query string paramaters
 Now we can call a simple, static url. But you probably want to pass some parameters to your RequestHandler.
