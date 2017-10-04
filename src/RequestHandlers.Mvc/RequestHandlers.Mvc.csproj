@@ -1,22 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFrameworks>netstandard1.6;netstandard2.0</TargetFrameworks>
     <AssemblyName>RequestHandlers.Mvc</AssemblyName>
     <PackageId>RequestHandlers.Mvc</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc">
-      <Version>1.1.3</Version>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+      <Version>1.1.4</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+      <Version>2.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
-      <Version>2.2.0</Version>
+      <Version>2.3.2</Version>
     </PackageReference>
-    <PackageReference Include="RequestHandlers" Version="3.1.7" />
+    <PackageReference Include="RequestHandlers" Version="3.1.8" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
