@@ -32,13 +32,13 @@ namespace RequestHandlers.Mvc.Tests.CSharp
             Assert.Equal("[RequestHandlers.Mvc.Tests.CSharp.TestNamedArgumentsAttribute(StringProperty = \"Yenthe\")]", stringAttribute);
         }
 
-        [TestNamedArguments(StringProperty = "Yenthe", IntProperty = 5)] class AttributeWithNamedArgumentsHost { }
+        [TestNamedArguments(StringProperty = "Yenthe", IntProperty = 5, BoolProperty = true)] class AttributeWithNamedArgumentsHost { }
 
         [Fact]
         public void Generate_GivenCustomAttributeData_WithMultipleNamedArguments_GenerateAttributeAsString()
         {
             var stringAttribute = _sut.Generate(typeof(AttributeWithNamedArgumentsHost).GetCustomAttributesData().First());
-            Assert.Equal("[RequestHandlers.Mvc.Tests.CSharp.TestNamedArgumentsAttribute(StringProperty = \"Yenthe\", IntProperty = 5)]", stringAttribute);
+            Assert.Equal("[RequestHandlers.Mvc.Tests.CSharp.TestNamedArgumentsAttribute(StringProperty = \"Yenthe\", IntProperty = 5, BoolProperty = true)]", stringAttribute);
         }
 
         [TestNamedArguments(EnumProperty = TestEnum.SecondValue)] class AttributeWithEnumNamedArgumentHost { }
@@ -47,7 +47,7 @@ namespace RequestHandlers.Mvc.Tests.CSharp
         public void Generate_GivenCustomAttributeData_WithEnumNamedArgument_GenerateAttributeAsString()
         {
             var stringAttribute = _sut.Generate(typeof(AttributeWithEnumNamedArgumentHost).GetCustomAttributesData().First());
-            Assert.Equal("[RequestHandlers.Mvc.Tests.CSharp.TestNamedArgumentsAttribute(EnumProperty = 1)]", stringAttribute);
+            Assert.Equal("[RequestHandlers.Mvc.Tests.CSharp.TestNamedArgumentsAttribute(EnumProperty = RequestHandlers.Mvc.Tests.CSharp.TestEnum.SecondValue)]", stringAttribute);
         }
 
         [TestConstructorArguments("first", 2, TestEnum.ThirdValue)] class AttributeWithConstructorArgumentsHost { }
@@ -56,7 +56,7 @@ namespace RequestHandlers.Mvc.Tests.CSharp
         public void Generate_GivenCustomAttributeData_WithConstructorArguments_GenerateAttributeAsString()
         {
             var stringAttribute = _sut.Generate(typeof(AttributeWithConstructorArgumentsHost).GetCustomAttributesData().First());
-            Assert.Equal("[RequestHandlers.Mvc.Tests.CSharp.TestConstructorArgumentsAttribute(\"first\", 2, 2)]", stringAttribute);
+            Assert.Equal("[RequestHandlers.Mvc.Tests.CSharp.TestConstructorArgumentsAttribute(\"first\", 2, RequestHandlers.Mvc.Tests.CSharp.TestEnum.ThirdValue)]", stringAttribute);
         }
 
         [TestConstructorArguments("first", 2, TestEnum.ThirdValue, Property = "Yenthe")] class AttributeWithNamedAndConstructorArgumentsHost { }
@@ -65,7 +65,7 @@ namespace RequestHandlers.Mvc.Tests.CSharp
         public void Generate_GivenCustomAttributeData_WithNamedAndConstructorArguments_GenerateAttributeAsString()
         {
             var stringAttribute = _sut.Generate(typeof(AttributeWithNamedAndConstructorArgumentsHost).GetCustomAttributesData().First());
-            Assert.Equal("[RequestHandlers.Mvc.Tests.CSharp.TestConstructorArgumentsAttribute(\"first\", 2, 2, Property = \"Yenthe\")]", stringAttribute);
+            Assert.Equal("[RequestHandlers.Mvc.Tests.CSharp.TestConstructorArgumentsAttribute(\"first\", 2, RequestHandlers.Mvc.Tests.CSharp.TestEnum.ThirdValue, Property = \"Yenthe\")]", stringAttribute);
         }
     }
 
@@ -81,6 +81,7 @@ namespace RequestHandlers.Mvc.Tests.CSharp
         public string StringProperty { get; set; }
         public int IntProperty { get; set; }
         public TestEnum EnumProperty { get; set; }
+        public bool BoolProperty { get; set; }
     }
 
     public class TestConstructorArgumentsAttribute : Attribute

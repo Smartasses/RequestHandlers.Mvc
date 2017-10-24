@@ -33,17 +33,32 @@ namespace RequestHandlers.Mvc.CSharp
 
         private string GenerateConstructorArgument(CustomAttributeTypedArgument constructorArgument)
         {
-            return ObjectToCodeString(constructorArgument.Value);
+            return ObjectToCodeString(constructorArgument.ArgumentType, constructorArgument.Value);
         }
 
         private string GenerateNamedArgument(CustomAttributeNamedArgument namedArgument)
         {
-            return $"{namedArgument.MemberName} = {ObjectToCodeString(namedArgument.TypedValue.Value)}";
+            return $"{namedArgument.MemberName} = {ObjectToCodeString(namedArgument.TypedValue.ArgumentType, namedArgument.TypedValue.Value)}";
         }
 
-        private static string ObjectToCodeString(object value)
+        private static string ObjectToCodeString(Type type, object value)
         {
-            return value is string ? $"\"{value}\"" : value.ToString();
+            if (type == typeof(string))
+            {
+                return $"\"{value}\"";
+            }
+
+            if (type == typeof(bool))
+            {
+                return (bool)value ? "true" : "false";
+            }
+
+            if (type.GetTypeInfo().IsEnum)
+            {
+                return type.FullName + "." + Enum.GetName(type, value);
+            }
+
+            return value.ToString();
         }
     }
 }
