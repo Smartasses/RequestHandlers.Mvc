@@ -40,7 +40,11 @@ namespace RequestHandlers.Mvc.CSharp
             var compilation = CSharpCompilation.Create(_assemblyName)
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
                 .AddReferences(references);
-            var operationResults = definitions.Select(temp => CreateCSharp(GetClassName(temp.Definition.RequestType), temp)).ToArray();
+            var uniqueClassNames = new HashSet<string>
+            {
+                "ProxyController"
+            };
+            var operationResults = definitions.Select(temp => CreateCSharp(GetOperationName(temp.Definition.RequestType), temp, uniqueClassNames)).ToArray();
             var files = new Dictionary<string, string>();
             files.Add("ProxyController", $@"namespace Proxy
 {{
@@ -68,7 +72,7 @@ namespace RequestHandlers.Mvc.CSharp
             var parameters = new CompilerParameters();
             parameters.GenerateExecutable = false;
             parameters.GenerateInMemory = true;*/
-            var saveToFile = !string.IsNullOrEmpty(_assemblyName);
+            var saveToFile = !string.IsNullOrEmpty(_saveToFilePath);
             var assemblyStream = new MemoryStream();
             var result = saveToFile ? compilation.Emit(_saveToFilePath) : compilation.Emit(assemblyStream);
             if (!result.Success)
@@ -92,7 +96,7 @@ namespace RequestHandlers.Mvc.CSharp
             }
         }
 
-        private string GetClassName(Type requestType)
+        private string GetOperationName(Type requestType)
         {
             var name = requestType.Name;
             string className;
@@ -100,15 +104,22 @@ namespace RequestHandlers.Mvc.CSharp
             do
             {
                 var add = addition.HasValue ? addition.ToString() : "";
-                className = $"{name}Handler{add}Controller";
+                className = $"{name}Handler{add}";
                 addition = addition + 1 ?? 2;
             } while (_classNames.Contains(className));
             return className;
         }
-        public OperationResult CreateCSharp(string operationName, HttpRequestHandlerDefinition builderDefinition)
+        public OperationResult CreateCSharp(string operationName, HttpRequestHandlerDefinition builderDefinition,
+            HashSet<string> uniqueClassNames)
         {
             var requestBodyProperties = builderDefinition.Parameters.Where(x => x.BindingType == BindingType.FromBody || x.BindingType == BindingType.FromForm).ToArray();
-            var requestClass = builderDefinition.Definition.RequestType.Name + "_" + Guid.NewGuid().ToString().Replace("-", "");
+            var requestClass = builderDefinition.Definition.RequestType.Name;
+            var original = requestClass;
+            var tryCount = 1;
+            while (uniqueClassNames.Contains(requestClass))
+            {
+                requestClass = $"{original}_{++tryCount}";
+            }
 
             var methodArgs = string.Join(",  ", builderDefinition.Parameters.GroupBy(x => x.PropertyName).Select(x => new
             {
