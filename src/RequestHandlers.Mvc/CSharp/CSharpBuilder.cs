@@ -15,16 +15,18 @@ using RequestHandlers.Http;
 
 namespace RequestHandlers.Mvc.CSharp
 {
-    class CSharpBuilder : IControllerAssemblyBuilder
+    public class CSharpBuilder : IControllerAssemblyBuilder
     {
         private readonly HashSet<string> _classNames;
         private readonly string _assemblyName;
+        private readonly string _saveToFilePath;
         private readonly AttributeGenerator _attributeGenerator;
 
-        public CSharpBuilder(string assemblyName)
+        public CSharpBuilder(string assemblyName, string saveToFilePath = null)
         {
             _classNames = new HashSet<string>();
             _assemblyName = assemblyName;
+            _saveToFilePath = saveToFilePath;
             _attributeGenerator = new AttributeGenerator();
         }
 
@@ -38,7 +40,6 @@ namespace RequestHandlers.Mvc.CSharp
             var compilation = CSharpCompilation.Create(_assemblyName)
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
                 .AddReferences(references);
-            var csharpControllers = new List<string>();
             var operationResults = definitions.Select(temp => CreateCSharp(GetClassName(temp.Definition.RequestType), temp)).ToArray();
             var files = new Dictionary<string, string>();
             files.Add("ProxyController", $@"namespace Proxy
@@ -63,8 +64,13 @@ namespace RequestHandlers.Mvc.CSharp
             {
                 compilation = compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText(temp.Value));
             }
+/*
+            var parameters = new CompilerParameters();
+            parameters.GenerateExecutable = false;
+            parameters.GenerateInMemory = true;*/
+            var saveToFile = !string.IsNullOrEmpty(_assemblyName);
             var assemblyStream = new MemoryStream();
-            var result = compilation.Emit(assemblyStream);
+            var result = saveToFile ? compilation.Emit(_saveToFilePath) : compilation.Emit(assemblyStream);
             if (!result.Success)
             {
                 var errormsg = new StringBuilder();
@@ -72,10 +78,18 @@ namespace RequestHandlers.Mvc.CSharp
                 {
                     errormsg.AppendLine(diagnostic.ToString());
                 }
-                throw new Exception(string.Join(Environment.NewLine, csharpControllers), new Exception(errormsg.ToString()));
+                throw new Exception(errormsg.ToString());
             }
-            assemblyStream.Seek(0, SeekOrigin.Begin);
-            return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
+
+            if (saveToFile)
+            {
+                return AssemblyLoadContext.Default.LoadFromAssemblyPath(_saveToFilePath);
+            }
+            else
+            {
+                assemblyStream.Seek(0, SeekOrigin.Begin);
+                return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
+            }
         }
 
         private string GetClassName(Type requestType)
