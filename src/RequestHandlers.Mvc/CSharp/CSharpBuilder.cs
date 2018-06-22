@@ -35,6 +35,7 @@ namespace RequestHandlers.Mvc.CSharp
             var references = new AssemblyReferencesHelper()
                 .AddReferenceForTypes(typeof(object), typeof(Controller), typeof(RequestHandlerControllerBuilder))
                 .AddReferenceForTypes(definitions.SelectMany(x => new[] { x.Definition.RequestType, x.Definition.ResponseType }).ToArray())
+                .AddReferenceForTypes(definitions.Select(x => x.Definition).OfType<RequestHandlerDefinition>().Select(x => x.RequestHandlerType).ToArray())
                 .GetReferences();
 
             var compilation = CSharpCompilation.Create(_assemblyName)
