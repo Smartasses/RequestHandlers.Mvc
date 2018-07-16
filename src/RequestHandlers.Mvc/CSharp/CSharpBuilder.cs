@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+#if NETSTANDARD2_0
 using System.Runtime.Loader;
+#endif
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -85,16 +87,13 @@ namespace RequestHandlers.Mvc.CSharp
                 }
                 throw new Exception(errormsg.ToString());
             }
-
-            if (saveToFile)
-            {
-                return AssemblyLoadContext.Default.LoadFromAssemblyPath(_saveToFilePath);
-            }
-            else
-            {
-                assemblyStream.Seek(0, SeekOrigin.Begin);
-                return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
-            }
+            assemblyStream.Seek(0, SeekOrigin.Begin);
+#if NET462
+            return Assembly.Load(assemblyStream.ToArray());
+#endif
+#if NETSTANDARD2_0
+            return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
+#endif
         }
 
         private string GetOperationName(Type requestType)
@@ -165,7 +164,7 @@ public  {(isAsync ? "async " : string.Empty)}{GetCorrectFormat(isAsync ? typeof(
         {
             var attributes = requestHandlerDefinition.RequestHandlerType.GetTypeInfo()
                 .CustomAttributes
-                .Select(x => _attributeGenerator.Generate(x)).Append(string.Empty);
+                .Select(x => _attributeGenerator.Generate(x));
             return string.Join(Environment.NewLine, attributes);
         }
 

@@ -6,8 +6,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequestHandlers.Mvc", "Requ
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequestHandlers.Mvc.Tests", "RequestHandlers.Mvc.Tests\RequestHandlers.Mvc.Tests.csproj", "{BC9B733F-6A41-4347-9355-F2CF59BE6E56}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequestHandlers.TestHost", "RequestHandlers.TestHost\RequestHandlers.TestHost.csproj", "{7C409F1B-6216-49E3-BF8C-CDFBA491C5F9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,12 +20,11 @@ Global
 		{BC9B733F-6A41-4347-9355-F2CF59BE6E56}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC9B733F-6A41-4347-9355-F2CF59BE6E56}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC9B733F-6A41-4347-9355-F2CF59BE6E56}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7C409F1B-6216-49E3-BF8C-CDFBA491C5F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7C409F1B-6216-49E3-BF8C-CDFBA491C5F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7C409F1B-6216-49E3-BF8C-CDFBA491C5F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7C409F1B-6216-49E3-BF8C-CDFBA491C5F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C296564F-D113-4323-BB39-BAAEE376AFF8}
 	EndGlobalSection
 EndGlobal
