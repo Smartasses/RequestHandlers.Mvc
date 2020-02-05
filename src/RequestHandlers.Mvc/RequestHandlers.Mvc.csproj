@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>RequestHandlers.Mvc</AssemblyName>
     <PackageId>RequestHandlers.Mvc</PackageId>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -8,14 +8,12 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc">
-      <Version>2.1.1</Version>
-    </PackageReference>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
-      <Version>2.8.2</Version>
+      <Version>3.4.0</Version>
     </PackageReference>
     <PackageReference Include="RequestHandlers" Version="3.1.12" />
-    <PackageReference Condition=" '$(TargetFramework)' == 'netstandard2.0' " Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-version" Version="1.1.0" />

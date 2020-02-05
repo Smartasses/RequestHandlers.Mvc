@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
 #if NETSTANDARD2_0
 using System.Runtime.Loader;
 #endif
@@ -88,12 +89,7 @@ namespace RequestHandlers.Mvc.CSharp
                 throw new Exception(errormsg.ToString());
             }
             assemblyStream.Seek(0, SeekOrigin.Begin);
-#if NET462
-            return Assembly.Load(assemblyStream.ToArray());
-#endif
-#if NETSTANDARD2_0
             return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
-#endif
         }
 
         private string GetOperationName(Type requestType)

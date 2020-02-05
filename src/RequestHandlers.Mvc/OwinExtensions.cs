@@ -11,10 +11,23 @@ namespace RequestHandlers.Mvc
         ///</summary>
         public static IServiceCollection AddRequestHandlers(this IServiceCollection services, params Assembly[] assemblies)
         {
+            // Add them to Mvc so they can be used as controllers
+            services
+                .AddControllers()
+                .AddRequestHandlers(assemblies);
+            return services;
+        }
+        ///<summary>
+        /// Registers all services needed to use RequestHandlers.Mvc
+        /// This method implicitly adds Mvc as it is needed by RequestHandlers.Mvc
+        ///</summary>
+        public static IMvcBuilder AddRequestHandlers(this IMvcBuilder mvcBuilder, params Assembly[] assemblies)
+        {
+            
             // Services used by RequestHandlers.Mvc
-            services.AddTransient<IWebRequestProcessor, DefaultWebRequestProcessor>();
-            services.AddTransient<IRequestDispatcher, DefaultRequestDispacher>();
-            services.AddTransient<IRequestHandlerResolver>(x => new DefaultRequestHandlerResolver(x));
+            mvcBuilder.Services.AddTransient<IWebRequestProcessor, DefaultWebRequestProcessor>();
+            mvcBuilder.Services.AddTransient<IRequestDispatcher, DefaultRequestDispacher>();
+            mvcBuilder.Services.AddTransient<IRequestHandlerResolver>(x => new DefaultRequestHandlerResolver(x));
 
             // Helper to create the generic interfaces
             var requestHandlerInterface = typeof(IRequestHandler<,>);
@@ -25,14 +38,13 @@ namespace RequestHandlers.Mvc
             // Register them as services
             foreach (var requestHandler in requestHandlerDefinitions)
             {
-                services.Add(new ServiceDescriptor(requestHandlerInterface.MakeGenericType(requestHandler.RequestType, requestHandler.ResponseType), requestHandler.RequestHandlerType, ServiceLifetime.Transient));
+                mvcBuilder.Services.Add(new ServiceDescriptor(requestHandlerInterface.MakeGenericType(requestHandler.RequestType, requestHandler.ResponseType), requestHandler.RequestHandlerType, ServiceLifetime.Transient));
             }
 
             // Add them to Mvc so they can be used as controllers
-            services
-                .AddMvc()
+            mvcBuilder
                 .AddApplicationPart(RequestHandlerControllerBuilder.Build(requestHandlerDefinitions));
-            return services;
+            return mvcBuilder;
         }
     }
 }
