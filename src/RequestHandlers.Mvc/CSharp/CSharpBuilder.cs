@@ -88,8 +88,15 @@ namespace RequestHandlers.Mvc.CSharp
                 }
                 throw new Exception(errormsg.ToString());
             }
-            assemblyStream.Seek(0, SeekOrigin.Begin);
-            return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
+            if (saveToFile)
+            {
+                return AssemblyLoadContext.Default.LoadFromAssemblyPath(_saveToFilePath);
+            }
+            else
+            {
+                assemblyStream.Seek(0, SeekOrigin.Begin);
+                return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
+            }
         }
 
         private string GetOperationName(Type requestType)
